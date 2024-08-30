@@ -1,8 +1,3 @@
-/* ========================================================================================================
- * prefs.js - preferences
- * ========================================================================================================
- */
-const Lang = imports.lang;
 const Signals = imports.signals;
 const Gio = imports.gi.Gio;
 const GLib = imports.gi.GLib;
@@ -40,7 +35,6 @@ const ClassicGnomePreferencesWidget = new GObject.Class({
 
     _init: function(params) {
         this.parent(params);
-        //this.settings = Convenience.getSettings('org.gnome.shell.extensions.classicGnome');
         this.modulesManager = new ModulesLoader.ModulesManager(this);
         this.modulesRequierd = ["get_side_page", "can_load_with_arguments"];
         this.module = null;
@@ -48,7 +42,7 @@ const ClassicGnomePreferencesWidget = new GObject.Class({
             orientation: Gtk.Orientation.VERTICAL
         });
         this.add(this.content_box);
-        this.connect('map', Lang.bind(this, this._loadModule));
+        this.connect('map', this._loadModule.bind(this));
     },
 
     navegate: function(widget, id) {
@@ -109,25 +103,19 @@ const ClassicGnomePreferencesWidget = new GObject.Class({
         let [m, n] = this.content_box.get_preferred_size();
         this.bar_heights = 0;
 
-        // Resize horizontally if the module is wider than the window
         let use_width = WIN_WIDTH;
         if (n.width > WIN_WIDTH) {
             use_width = n.width;
         }
-        // Resize vertically depending on the height requested by the module
+
         let use_height = WIN_HEIGHT;
         let total_height = n.height + this.bar_heights + WIN_H_PADDING;
         if (!sidePage.size) {
-            // No height requested, resize vertically if the module is taller than the window
             if (total_height > WIN_HEIGHT) {
                 use_height = total_height;
             }
-            //this.wind.resize(use_width, n.height + this.bar_heights + WIN_H_PADDING)
         } else if (sidePage.size > 0) {
-            // Height hardcoded by the module
-            //use_height = sidePage.size + this.bar_heights + WIN_H_PADDING;
         } else if (sidePage.size == -1) {
-            // Module requested the window to fit it (i.e. shrink the window if necessary)
             use_height = total_height;
         }
         this.wind.resize(use_width, use_height);
@@ -135,7 +123,6 @@ const ClassicGnomePreferencesWidget = new GObject.Class({
 });
 
 function init() {
-    //Convenience.initTranslations();
     Notify.init ("org.classic.gnome.settings.daemon");
     window.global.getSettings = function(schema) {
         let schemaDir = GLib.build_filenamev([MyExtension.dir.get_path(), "schemas"]);
@@ -154,14 +141,14 @@ function init() {
             "body": body,
             "icon-name": iconName
         });
-        this.notification.connect("closed", Lang.bind(this, function() {
-            let reason = this.notification.get_closed_reason(); // The reason never seem to change.
+        this.notification.connect("closed", () => {
+            let reason = this.notification.get_closed_reason(); 
             print("close reason: " + reason + "\n");
-        }));
+        });
    
-        this.notification.add_action("ok", _("Ok"), Lang.bind(this, function() {
+        this.notification.add_action("ok", _("Ok"), () => {
             print("ok\n");
-        }));
+        });
         this.notification.show();
     };
 }
