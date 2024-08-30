@@ -1,4 +1,3 @@
-// Import statements at the very top
 const St = imports.gi.St;
 const Main = imports.ui.main;
 const Mainloop = imports.mainloop;
